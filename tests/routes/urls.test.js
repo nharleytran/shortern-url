@@ -1,67 +1,125 @@
-import { describe, it } from "vitest";
+import { describe, it, expect, beforeEach, afterAll, beforeAll } from "vitest";
+import { teenyUrlDao } from "../../src/routes/urls.js";
+import app from "../../src/index.js";
 import * as dotenv from "dotenv";
+import * as db from "../../src/data/db.js";
+import mongoose from "mongoose";
+import { faker } from "@faker-js/faker";
+import supertest from "supertest";
 
 dotenv.config();
 const endpoint = "/urls";
+const request = new supertest(app);
 
 describe(`Test ${endpoint}`, () => {
+  const numberUrl = 5;
+  let teenyUrls;
+
+  beforeAll(async () => {
+    db.connect(process.env.DB_TEST_URI);
+    await teenyUrlDao.deleteAll();
+  });
+
+  beforeEach(async () => {
+    await teenyUrlDao.deleteAll();
+    teenyUrls = [];
+    for (let index = 0; index < numberUrl; index++) {
+      const url = faker.internet.url();
+      const teenyUrl = await teenyUrlDao.create(url);
+      teenyUrls.push(teenyUrl);
+    }
+  });
+
   describe("GET request", () => {
     it("Respond 405", async () => {
-      // TODO Implement me
+      const response = await request.get(`${endpoint}`);
+      expect(response.status).toBe(405);
     });
   });
 
   describe("POST request", () => {
     it("Respond 201", async () => {
-      // TODO Implement me
+      const url = faker.internet.url();
+      const response = await request.post(`${endpoint}`).send({url});
+      console.log(response);
+      expect(response.status).toBe(201);
     });
 
     describe("Respond 400", () => {
       it("Empty url", async () => {
-        // TODO Implement me
+        const url = "";
+        const response = await request.post(`${endpoint}`).send({url});
+        console.log(response);
+        expect(response.status).toBe(400);
       });
 
       it("Null url", async () => {
-        // TODO Implement me
+        const url = null;
+        const response = await request.post(`${endpoint}`).send({url});
+        console.log(response);
+        expect(response.status).toBe(400);
       });
 
       it("Undefined url", async () => {
-        // TODO Implement me
+        const url = undefined;
+        const response = await request.post(`${endpoint}`).send({url});
+        console.log(response);
+        expect(response.status).toBe(400);
       });
 
       it("Invalid url", async () => {
-        // TODO Implement me
+        const url = "asdasf";
+        const response = await request.post(`${endpoint}`).send({url});
+        console.log(response);
+        expect(response.status).toBe(400);
       });
 
       it("Url already mapped", async () => {
-        // TODO Implement me
+        const index = Math.floor(Math.random() * numberUrl);
+        const teenyUrl = teenyUrls[index];
+        const url = teenyUrl.url;
+        const response = await request.post(`${endpoint}`).send({url});
+        console.log(response);
+        expect(response.status).toBe(400);
       });
     });
   });
 
   describe("GET request given ID", () => {
     it("Respond 200", async () => {
-      // TODO Implement me
+      const index = Math.floor(Math.random() * numberUrl);
+      const teenyUrl = teenyUrls[index];
+      const response = await request.get(`${endpoint}?id=${teenyUrl.id}`);
+      console.log(response);
+      expect(response.status).toBe(200);
     });
 
     it("Respond 400", async () => {
-      // TODO Implement me
+      const id = "1231";
+      const response = await request.get(`${endpoint}?id=${id}`);
+      expect(response.status).toBe(400);
     });
 
     it("Respond 404", async () => {
-      // TODO Implement me
+      const id = "6393f4ecc0d670ce53caa9ed";
+      const response = await request.get(`${endpoint}?id=${id}`);
+      expect(response.status).toBe(404);
     });
   });
 
   describe("PUT request", () => {
     it("Respond 405", async () => {
-      // TODO Implement me
+      const response = await request.put(`${endpoint}?id`);
+      expect(response.status).toBe(405);
     });
   });
 
   describe("DELETE request", () => {
     it("Respond 200", async () => {
-      // TODO Implement me
+      const index = Math.floor(Math.random() * numberUrl);
+      const teenyUrl = teenyUrls[index];
+      const response = await request.delete(`${endpoint}?id=${teenyUrl.id}`);
+      expect(response.status).toBe(200);
     });
 
     it("Respond 400", async () => {
@@ -69,17 +127,24 @@ describe(`Test ${endpoint}`, () => {
     });
 
     it("Respond 404", async () => {
-      // TODO Implement me
+      const id = "6393f4ecc0d670ce53caa9ed"
+      const response = await request.delete(`${endpoint}?id=${id}`);
+      expect(response.status).toBe(404);
     });
   });
 
   describe("Redirect from short to long URL", () => {
     it("Respond 302", async () => {
-      // TODO Implement me
+      const index = 0;
+      const teenyUrl = teenyUrls[0];
+      const response = await request.get(`?key=${teenyUrl.key}`);
+      expect(response.status).toBe(302);
     });
 
     it("Respond 404", async () => {
-      // TODO Implement me
+      const key = "asdasd"
+      const response = await request.get(`?key=${key}`);
+      expect(response.status).toBe(302);
     });
   });
 });

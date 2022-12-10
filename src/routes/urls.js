@@ -1,7 +1,12 @@
 import express from "express";
 import { factory } from "../util/debug.js";
 import TeenyUrlDao from "../data/TeenyUrlDao.js";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import path from "path";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 const debug = factory(import.meta.url);
 const router = express.Router();
 export const teenyUrlDao = new TeenyUrlDao();
@@ -110,7 +115,7 @@ router.get("/:key", async (req, res, next) => {
         }
     } catch (err) {
         res.status(405);
-        res.sendFile('/Users/harleytran/Desktop/Fall 2022/Javascript/hw8-teenyurl-api-nharleytran/assets/404.html');
+        res.sendFile(path.join(__dirname, '../../assets', '404.html'));
     }
 });
 

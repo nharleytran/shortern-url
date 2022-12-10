@@ -41,7 +41,7 @@ router.post(`${endpoint}`, async (req, res, next) => {
         const shortUrls = await teenyUrlDao.readAll({url});
         let shortUrl = shortUrls[0];
         if (shortUrl && url != "") {
-            res.status(200).json({
+            res.json({
                 status: 400,
                 message: `This URL is already mapped`,
                 data: {

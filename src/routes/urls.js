@@ -75,10 +75,7 @@ router.put(`${endpoint}/:id`, async (req, res, next) => {
     try {
         await teenyUrlDao.update();
     } catch (err) {
-        res.status(405).json({
-            status: 405,
-            message: `Method Not Allowed`
-        });
+        next(err)
     }
 });
 

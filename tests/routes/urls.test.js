@@ -41,7 +41,6 @@ describe(`Test ${endpoint}`, () => {
     it("Respond 201", async () => {
       const url = faker.internet.url();
       const response = await request.post(`${endpoint}`).send({url});
-      console.log(response);
       expect(response.status).toBe(201);
     });
 
@@ -49,28 +48,24 @@ describe(`Test ${endpoint}`, () => {
       it("Empty url", async () => {
         const url = "";
         const response = await request.post(`${endpoint}`).send({url});
-        console.log(response);
         expect(response.status).toBe(400);
       });
 
       it("Null url", async () => {
         const url = null;
         const response = await request.post(`${endpoint}`).send({url});
-        console.log(response);
         expect(response.status).toBe(400);
       });
 
       it("Undefined url", async () => {
         const url = undefined;
         const response = await request.post(`${endpoint}`).send({url});
-        console.log(response);
         expect(response.status).toBe(400);
       });
 
       it("Invalid url", async () => {
         const url = "asdasf";
         const response = await request.post(`${endpoint}`).send({url});
-        console.log(response);
         expect(response.status).toBe(400);
       });
 
@@ -109,7 +104,7 @@ describe(`Test ${endpoint}`, () => {
 
   describe("PUT request", () => {
     it("Respond 405", async () => {
-      const response = await request.put(`${endpoint}?id`);
+      const response = await request.put(`/urls/:id`);
       expect(response.status).toBe(405);
     });
   });
@@ -147,4 +142,9 @@ describe(`Test ${endpoint}`, () => {
       expect(response.status).toBe(302);
     });
   });
+
+  afterAll(async () => {
+    await teenyUrlDao.deleteAll();
+  });
+
 });
